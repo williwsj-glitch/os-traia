@@ -127,6 +127,10 @@ const firebaseConfig = {
 
 const EVENTO = "🔥🍖 *CONFRATERNIZAÇÃO OS TRAIA 2026* 🍖🔥\n📅 Sábado, 05/12\n📍 Chácara Network\n\n⚠️ Amantes do Mounjaro: NÃO tomem nessa semana!\n🥤 Leve seu copo Stanley para rebocar a foto 📸";
 const DATA_EVENTO = new Date("2026-12-05T12:00:00-03:00");
+const AVISO_TOPICO = "os-traia-willi-7k2q9";
+function avisarWilli(titulo, texto){
+  try { fetch("https://ntfy.sh/" + AVISO_TOPICO + "?tags=fire&title=" + encodeURIComponent(titulo), { method:"POST", body:texto }).catch(()=>{}); } catch {}
+}
 const DEMO = !firebaseConfig.apiKey || firebaseConfig.apiKey === "COLE_AQUI";
 
 const $ = id => document.getElementById(id);
@@ -216,6 +220,7 @@ $("form").addEventListener("submit", async e => {
     return aviso(`${nome} já tá na lista! 🍻`);
   try {
     await adicionar(nome);
+    avisarWilli("Confirmou presença! 🔥", `${nome} tá dentro! Total: ${pessoas.length} confirmados`);
     $("nome").value = "";
     aviso(`Fechou, ${nome}! Agora manda a lista atualizada no grupo 👇`);
     confete();
@@ -225,7 +230,8 @@ $("form").addEventListener("submit", async e => {
 $("lista").addEventListener("click", async e => {
   const id = e.target.dataset && e.target.dataset.id;
   if (!id) return;
-  try { await remover(id); aviso("Removido. Que pena! 😢"); } catch { aviso("Não deu para remover."); }
+  const quem = (pessoas.find(p => p.id === id) || {}).nome || "Alguém";
+  try { await remover(id); aviso("Removido. Que pena! 😢"); avisarWilli("Desistiu 😢", `${quem} saiu da lista`); } catch { aviso("Não deu para remover."); }
 });
 
 $("share").addEventListener("click", () => {
